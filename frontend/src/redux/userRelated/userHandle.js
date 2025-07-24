@@ -1,0 +1,273 @@
+import axios from 'axios';
+import {
+    authRequest,
+    stuffAdded,
+    authSuccess,
+    authFailed,
+    authError,
+    authLogout,
+    doneSuccess,
+    getDeleteSuccess,
+    getRequest,
+    getFailed,
+    getError,
+} from './userSlice';
+import { BASE_URL } from '../../config';
+
+export const loginUser = (fields, role) => async (dispatch) => {
+    dispatch(authRequest());
+
+    try {
+        const loginUrl = `${BASE_URL}/${role}Login`;
+        console.log(`Attempting to login at: ${loginUrl} with role: ${role}`);
+        console.log('Login fields:', fields);
+        
+        // Extract rememberMe flag and remove it from fields before sending to API
+        const rememberMe = fields.rememberMe || false;
+        const apiFields = { ...fields };
+        delete apiFields.rememberMe;
+        
+        // For Student login, ensure rollNum is properly formatted
+        if (role === 'Student' && apiFields.rollNum) {
+            // Ensure rollNum is sent as a number if possible
+            if (!isNaN(apiFields.rollNum)) {
+                apiFields.rollNum = parseInt(apiFields.rollNum, 10);
+            }
+        }
+        
+        const result = await axios.post(loginUrl, apiFields, {
+            headers: { 'Content-Type': 'application/json' },
+        });
+
+        if (result.data) {
+            // Validate that all required fields are present based on role
+            const requiredFields = ['_id', 'name', 'role'];
+            
+            // For student login, check rollNum instead of email
+            if (role === 'Student') {
+                requiredFields.push('rollNum');
+                // Ensure the school ID is available
+                if (!result.data.school) {
+                    dispatch(authFailed('School ID not found for student'));
+                    return;
+                }
+            } 
+            // Email is required for Admin and Teacher
+            else {
+                requiredFields.push('email');
+                
+                // Admin requires schoolName
+                if (role === 'Admin') {
+                    requiredFields.push('schoolName');
+                    // Set the school ID for admin users based on their own ID
+                    result.data.school = result.data._id;
+                }
+            }
+            
+            const missingFields = requiredFields.filter(field => !result.data[field]);
+            if (missingFields.length > 0) {
+                dispatch(authFailed(`Missing required fields: ${missingFields.join(', ')}`));
+                return;
+            }
+
+            // Pass rememberMe flag to authSuccess action
+            dispatch(authSuccess({ ...result.data, rememberMe }));
+        } else {
+            dispatch(authFailed(result.data.message || 'Invalid credentials'));
+        }
+    } catch (error) {
+        console.error("Login error:", error);
+        
+        if (!error.response) {
+            // Network error
+            dispatch(authFailed('Cannot connect to server. Please check if the server is running.'));
+        } else if (error.response.status === 404) {
+            dispatch(authFailed('Service not found. Please check the server URL.'));
+        } else if (error.response.status === 401) {
+            if (role === 'Student') {
+                dispatch(authFailed('Invalid roll number, name or password. Please try again.'));
+            } else {
+                dispatch(authFailed('Invalid email or password. Please try again.'));
+            }
+        } else if (error.response.status === 400) {
+            if (role === 'Student') {
+                dispatch(authFailed('Missing required fields: Roll Number, Name, and Password are required'));
+            } else {
+                dispatch(authFailed(error.response.data.message || 'Missing required fields'));
+            }
+        } else {
+            const message = error.response?.data?.message || error.message || 'An error occurred';
+            dispatch(authError({
+                message,
+                code: error.code || 'UNKNOWN_ERROR',
+                status: error.response?.status
+            }));
+        }
+    }
+};
+
+export const registerUser = (fields, role) => async (dispatch) => {
+    dispatch(authRequest());
+
+    try {
+        console.log(`Registering ${role} with fields:`, fields);
+        const result = await axios.post(`${BASE_URL}/${role}Reg`, fields, {
+            headers: { 'Content-Type': 'application/json' },
+        });
+        
+        console.log(`${role} registration response:`, result.data);
+        
+        if (result.data.schoolName) {
+            dispatch(authSuccess(result.data));
+        }
+        else if (result.data.school) {
+            dispatch(stuffAdded());
+        }
+        else {
+            dispatch(authFailed(result.data.message || "Registration failed"));
+        }
+    } catch (error) {
+        console.error(`${role} registration error:`, error);
+        const serializedError = {
+            message: error.response?.data?.message || error.message || 'An error occurred',
+            code: error.code || 'UNKNOWN_ERROR',
+            status: error.response?.status
+        };
+        dispatch(authError(serializedError));
+    }
+};
+
+export const logoutUser = () => (dispatch) => {
+    dispatch(authLogout());
+};
+
+export const getUserDetails = (id, address) => async (dispatch) => {
+    dispatch(getRequest());
+
+    try {
+        if (!id) {
+            dispatch(getFailed('Invalid ID provided'));
+            return;
+        }
+        const result = await axios.get(`${BASE_URL}/${address}/${id}`);
+        if (result.data) {
+            dispatch(doneSuccess(result.data));
+        }
+    } catch (error) {
+        const serializedError = {
+            message: error.message || 'An error occurred',
+            code: error.code || 'UNKNOWN_ERROR',
+            status: error.response?.status
+        };
+        dispatch(getError(serializedError));
+    }
+}
+
+export const updateStudentProfile = (id, fields) => async (dispatch) => {
+    dispatch(getRequest());
+
+    try {
+        if (!id) {
+            dispatch(getFailed('Invalid ID provided'));
+            return;
+        }
+        
+        const result = await axios.put(`${BASE_URL}/StudentProfile/${id}`, fields, {
+            headers: { 'Content-Type': 'application/json' },
+        });
+        
+        if (result.data) {
+            // Update both userDetails and currentUser
+            dispatch(doneSuccess(result.data));
+            dispatch(authSuccess({
+                ...result.data,
+                // Keep the rememberMe setting from localStorage if it exists
+                rememberMe: JSON.parse(localStorage.getItem('user'))?.rememberMe || false
+            }));
+            return { success: true, data: result.data };
+        }
+    } catch (error) {
+        console.error("Error updating profile:", error);
+        const serializedError = {
+            message: error.response?.data?.message || error.message || 'An error occurred',
+            code: error.code || 'UNKNOWN_ERROR',
+            status: error.response?.status
+        };
+        dispatch(getError(serializedError));
+        return { success: false, error: serializedError };
+    }
+}
+
+export const deleteUser = (id, address) => async (dispatch) => {
+    dispatch(getRequest());
+
+    try {
+        // Use BASE_URL constant instead of process.env.REACT_APP_BASE_URL
+        const result = await axios.delete(`${BASE_URL}/${address}/${id}`);
+        if (result.data.message) {
+            dispatch(getFailed(result.data.message));
+        } else {
+            dispatch(getDeleteSuccess());
+        }
+    } catch (error) {
+        console.error("Error deleting user:", error);
+        const serializedError = {
+            message: error.response?.data?.message || error.message || 'An error occurred',
+            code: error.code || 'UNKNOWN_ERROR',
+            status: error.response?.status
+        };
+        dispatch(getError(serializedError));
+    }
+}
+
+// Disabled version
+// export const deleteUser = (id, address) => async (dispatch) => {
+//     dispatch(getRequest());
+//     dispatch(getFailed("Sorry the delete function has been disabled for now."));
+// }
+
+export const updateUser = (fields, id, address) => async (dispatch) => {
+    dispatch(getRequest());
+
+    try {
+        const result = await axios.put(`${BASE_URL}/${address}/${id}`, fields, {
+            headers: { 'Content-Type': 'application/json' },
+        });
+        if (result.data.schoolName) {
+            dispatch(authSuccess(result.data));
+        }
+        else {
+            dispatch(doneSuccess(result.data));
+        }
+    } catch (error) {
+        const serializedError = {
+            message: error.message || 'An error occurred',
+            code: error.code || 'UNKNOWN_ERROR',
+            status: error.response?.status
+        };
+        dispatch(getError(serializedError));
+    }
+}
+
+export const addStuff = (fields, address) => async (dispatch) => {
+    dispatch(authRequest());
+
+    try {
+        const result = await axios.post(`${BASE_URL}/${address}Create`, fields, {
+            headers: { 'Content-Type': 'application/json' },
+        });
+
+        if (result.data.message) {
+            dispatch(authFailed(result.data.message));
+        } else {
+            dispatch(stuffAdded(result.data));
+        }
+    } catch (error) {
+        const serializedError = {
+            message: error.message || 'An error occurred',
+            code: error.code || 'UNKNOWN_ERROR',
+            status: error.response?.status
+        };
+        dispatch(authError(serializedError));
+    }
+};

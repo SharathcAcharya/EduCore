@@ -1,0 +1,721 @@
+// filepath: e:\mca final\MERN-School-Management-System\frontend\src\pages\admin\assignmentRelated\AdminAssignments.js
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import axios from 'axios';
+import {
+    Box,
+    Button,
+    Card,
+    CardContent,
+    Grid,
+    Typography,
+    Paper,
+    Divider,
+    IconButton,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogContentText,
+    DialogTitle,
+    TextField,
+    FormControl,
+    InputLabel,
+    Select,
+    MenuItem,
+    Tooltip,
+    Chip,
+    Snackbar,
+    Alert,
+    CircularProgress
+} from '@mui/material';
+import { Add, Delete, Edit, Assignment, School, Class, Subject, DateRange, Person, BugReport, Refresh } from '@mui/icons-material';
+import { getAllAssignments, addAssignment, deleteAssignment } from '../../../redux/assignmentRelated/assignmentHandle';
+import { getAllSclasses } from '../../../redux/sclassRelated/sclassHandle';
+import { getAllSubjects } from '../../../redux/subjectRelated/subjectHandle';
+import Popup from '../../../components/Popup';
+import { diagnoseAssignmentSystem } from '../../../utils/enhancedAssignmentDiagnostics';
+import troubleshootFormData from '../../../utils/formDataDiagnostics';
+import { BASE_URL } from '../../../config';
+
+const AdminAssignments = () => {
+    const navigate = useNavigate();
+    const dispatch = useDispatch();
+    const { currentUser } = useSelector((state) => state.user);
+    const { assignments = [], loading, error } = useSelector((state) => state.assignment || {});
+    const { sclassesList: sclasses = [] } = useSelector((state) => state.sclass || {});
+    const { subjects = [] } = useSelector((state) => state.subject || {});
+
+    const [openPopup, setOpenPopup] = useState(false);
+    const [confirmDialog, setConfirmDialog] = useState({ isOpen: false, title: '', subtitle: '' });
+    const [formData, setFormData] = useState({
+        title: '',
+        description: '',
+        subject: '',
+        sclassName: '',
+        dueDate: '',
+        maxMarks: 100,
+        school: currentUser?.school || currentUser?._id,
+        assignedBy: currentUser?._id,
+        assignerModel: 'admin'
+    });
+    const [notification, setNotification] = useState({ show: false, message: '', type: '' });
+
+    useEffect(() => {
+        // For Admin users, if school is not set, use their _id as the school identifier
+        const schoolId = currentUser?.school || currentUser?._id;
+        
+        if (!schoolId) {
+            console.error('School ID not found');
+            setNotification({
+                show: true,
+                message: 'School ID not found. Cannot load assignments.',
+                type: 'error'
+            });
+            return;
+        }
+        
+        console.log("Admin fetching assignments with school ID:", schoolId);
+        
+        // Fetch resources and handle potential failures
+        const fetchData = async () => {
+            try {
+                // First fetch classes and subjects to ensure they're available for the form
+                console.log("Fetching classes and subjects...");
+                
+                // Fetch classes
+                try {
+                    console.log("Fetching all classes for school:", schoolId);
+                    // Try direct class endpoint first
+                    const classResponse = await axios.get(`${BASE_URL}/Class/School/${schoolId}`);
+                    console.log("Class API response:", classResponse.data);
+                    
+                    if (Array.isArray(classResponse.data) && classResponse.data.length > 0) {
+                        dispatch({
+                            type: 'sclass/getSuccess',
+                            payload: classResponse.data
+                        });
+                    } else {
+                        console.error("No classes found for school");
+                        setNotification({
+                            show: true,
+                            message: 'No classes found. Please add classes first.',
+                            type: 'warning'
+                        });
+                    }
+                } catch (classError) {
+                    console.error("Error fetching classes directly:", classError);
+                    
+                    // Fallback to traditional endpoint
+                    try {
+                        await dispatch(getAllSclasses(schoolId, "Sclass"));
+                    } catch (fallbackError) {
+                        console.error("Error fetching classes via fallback:", fallbackError);
+                    }
+                }
+                
+                // Fetch subjects
+                try {
+                    console.log("Fetching all subjects for school:", schoolId);
+                    // Try direct subject endpoint first
+                    const subjectResponse = await axios.get(`${BASE_URL}/Subject/School/${schoolId}`);
+                    console.log("Subject API response:", subjectResponse.data);
+                    
+                    if (Array.isArray(subjectResponse.data) && subjectResponse.data.length > 0) {
+                        // Update the Redux store correctly using the action creator from the slice
+                        dispatch({
+                            type: 'subject/getAllSubjects/fulfilled',
+                            payload: subjectResponse.data
+                        });
+                        console.log("Successfully stored subjects in Redux store");
+                    } else {
+                        console.error("No subjects found for school");
+                        setNotification({
+                            show: true,
+                            message: 'No subjects found. Please add subjects first.',
+                            type: 'warning'
+                        });
+                    }
+                } catch (subjectError) {
+                    console.error("Error fetching subjects directly:", subjectError);
+                    
+                    // Fallback to traditional method
+                    try {
+                        const result = await dispatch(getAllSubjects(schoolId));
+                        console.log("Subjects fallback result:", result);
+                    } catch (fallbackError) {
+                        console.error("Error fetching subjects via fallback:", fallbackError);
+                    }
+                }
+                
+                // Then fetch the assignments
+                await dispatch(getAllAssignments(schoolId));
+                console.log("Successfully loaded assignments data");
+            } catch (error) {
+                console.error("Error fetching assignment data:", error);
+                setNotification({
+                    show: true,
+                    message: 'Failed to load assignment data. Please refresh the page.',
+                    type: 'error'
+                });
+            }
+        };
+        
+        fetchData();
+    }, [dispatch, currentUser]);
+
+    const resetFormData = () => {
+        setFormData({
+            title: '',
+            description: '',
+            subject: '',
+            sclassName: '',
+            dueDate: '',
+            maxMarks: 100,
+            school: currentUser?.school || currentUser?._id,
+            assignedBy: currentUser?._id,
+            assignerModel: 'admin'
+        });
+    };
+
+    const handleFormChange = (e) => {
+        const { name, value } = e.target;
+        setFormData({ ...formData, [name]: value });
+    };
+
+    const handleAddAssignment = () => {
+        console.log("Add Assignment button clicked");
+        
+        // Check if classes and subjects are loaded
+        if (!Array.isArray(sclasses) || sclasses.length === 0) {
+            console.error("Classes not loaded or empty");
+            setNotification({
+                show: true,
+                message: 'No classes available. Please add classes first or check network connection.',
+                type: 'error'
+            });
+            return;
+        }
+        
+        if (!Array.isArray(subjects) || subjects.length === 0) {
+            console.error("Subjects not loaded or empty. Current subject state:", subjects);
+            
+            setNotification({
+                show: true,
+                message: 'No subjects available. Please use the "Fix Subjects" button to reload subjects.',
+                type: 'error'
+            });
+            return;
+        }
+        
+        console.log("Available classes:", sclasses);
+        console.log("Available subjects:", subjects);
+        
+        resetFormData();
+        setOpenPopup(true);
+    };
+
+    const handleFixSubjects = async () => {
+        const schoolId = currentUser?.school || currentUser?._id;
+        console.log("🔧 Manually fixing subjects for school:", schoolId);
+        
+        try {
+            // Direct API call to fetch subjects
+            const response = await axios.get(`${BASE_URL}/Subject/School/${schoolId}`);
+            console.log("📋 Subjects API response:", response.data);
+            
+            if (Array.isArray(response.data) && response.data.length > 0) {
+                // Update Redux store with the fetched subjects
+                dispatch({
+                    type: 'subject/getAllSubjects/fulfilled',
+                    payload: response.data
+                });
+                
+                console.log("✅ Successfully loaded and stored subjects in Redux");
+                setNotification({
+                    show: true,
+                    message: `Successfully loaded ${response.data.length} subjects`,
+                    type: 'success'
+                });
+            } else {
+                console.warn("⚠️ No subjects found or invalid response format");
+                setNotification({
+                    show: true,
+                    message: 'No subjects found for this school',
+                    type: 'warning'
+                });
+            }
+        } catch (error) {
+            console.error("❌ Error fetching subjects:", error);
+            setNotification({
+                show: true,
+                message: `Error: ${error.message || 'Unknown error'}`,
+                type: 'error'
+            });
+        }
+    };
+
+    const handleDeleteAssignment = (assignmentId) => {
+        setConfirmDialog({
+            isOpen: true,
+            title: 'Are you sure you want to delete this assignment?',
+            subtitle: "You can't undo this operation",
+            onConfirm: async () => {
+                const result = await dispatch(deleteAssignment(assignmentId));
+                setConfirmDialog({ ...confirmDialog, isOpen: false });
+                
+                if (result.success) {
+                    setNotification({
+                        show: true,
+                        message: 'Assignment deleted successfully!',
+                        type: 'success'
+                    });
+                } else {
+                    setNotification({
+                        show: true,
+                        message: result.error?.message || 'Failed to delete assignment',
+                        type: 'error'
+                    });
+                }
+                
+                // Hide notification after 3 seconds
+                setTimeout(() => {
+                    setNotification({ show: false, message: '', type: '' });
+                }, 3000);
+            }
+        });
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        
+        // Validate form data
+        if (!formData.title || !formData.description || !formData.subject || 
+            !formData.sclassName || !formData.dueDate) {
+            setNotification({
+                show: true,
+                message: 'Please fill in all required fields',
+                type: 'error'
+            });
+            return;
+        }
+        
+        // Make sure school and assignedBy IDs are set
+        const dataToSubmit = {
+            ...formData,
+            school: currentUser?.school || currentUser?._id,
+            assignedBy: currentUser?._id,
+            assignerModel: 'admin'
+        };
+        
+        console.log("Submitting assignment data:", dataToSubmit);
+        
+        try {
+            const result = await dispatch(addAssignment(dataToSubmit));
+            
+            if (result.success) {
+                console.log("Assignment added successfully:", result.data);
+                setNotification({
+                    show: true,
+                    message: 'Assignment added successfully!',
+                    type: 'success'
+                });
+                
+                // Refresh the assignments list
+                const schoolId = currentUser?.school || currentUser?._id;
+                dispatch(getAllAssignments(schoolId));
+                
+                setOpenPopup(false);
+                resetFormData();
+            } else {
+                console.error("Failed to add assignment:", result.error);
+                setNotification({
+                    show: true,
+                    message: result.error?.message || 'Failed to add assignment',
+                    type: 'error'
+                });
+            }
+        } catch (error) {
+            console.error("Exception while adding assignment:", error);
+            setNotification({
+                show: true,
+                message: 'An unexpected error occurred',
+                type: 'error'
+            });
+        }
+        
+        // Hide notification after 3 seconds
+        setTimeout(() => {
+            setNotification({ show: false, message: '', type: '' });
+        }, 3000);
+    };
+
+    const formatDate = (dateString) => {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric'
+        });
+    };
+
+    const getStatusColor = (dueDate) => {
+        const now = new Date();
+        const due = new Date(dueDate);
+        
+        if (due < now) {
+            return '#f44336'; // red for past due
+        } else if ((due - now) / (1000 * 60 * 60 * 24) < 3) {
+            return '#ff9800'; // orange for approaching
+        } else {
+            return '#4caf50'; // green for plenty of time
+        }
+    };
+
+    return (
+        <Box sx={{ p: 2 }}>
+            <Grid container justifyContent="space-between" alignItems="center" mb={3}>
+                <Grid item>
+                    <Typography variant="h5" sx={{ display: 'flex', alignItems: 'center' }}>
+                        <Assignment sx={{ mr: 1 }} />
+                        Manage Assignments
+                    </Typography>
+                </Grid>
+                <Grid item>
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        startIcon={<Add />}
+                        onClick={handleAddAssignment}
+                        sx={{ mr: 1 }}
+                    >
+                        Create Assignment
+                    </Button>
+                    
+                    <Button
+                        variant="outlined"
+                        color="info"
+                        startIcon={<Refresh />}
+                        onClick={handleFixSubjects}
+                        sx={{ mr: 1 }}
+                    >
+                        Fix Subjects
+                    </Button>
+                    
+                    <Button
+                        variant="outlined"
+                        color="secondary"
+                        startIcon={<BugReport />}
+                        onClick={() => {
+                            console.log("Running comprehensive assignment diagnostics...");
+                            diagnoseAssignmentSystem(currentUser);
+                            troubleshootFormData(currentUser);
+                            
+                            // Try to test assignment creation if possible
+                            const runTestCreation = async () => {
+                                if (Array.isArray(sclasses) && sclasses.length > 0 && 
+                                    Array.isArray(subjects) && subjects.length > 0) {
+                                    
+                                    try {
+                                        console.log("Testing assignment creation...");
+                                        const testClassId = sclasses[0]._id;
+                                        const testSubjectId = subjects[0]._id;
+                                        
+                                        const { testAssignmentCreation } = await import('../../../utils/enhancedAssignmentDiagnostics');
+                                        const result = await testAssignmentCreation(currentUser, testClassId, testSubjectId);
+                                        
+                                        if (result.success) {
+                                            console.log("Test assignment created successfully!");
+                                            // Refresh assignments list
+                                            dispatch(getAllAssignments(currentUser?.school || currentUser?._id));
+                                        }
+                                    } catch (error) {
+                                        console.error("Error testing assignment creation:", error);
+                                    }
+                                } else {
+                                    console.log("Cannot test creation - missing classes or subjects");
+                                }
+                            };
+                            
+                            runTestCreation();
+                            
+                            setNotification({
+                                show: true,
+                                message: 'Comprehensive diagnostics complete! Check browser console for results.',
+                                type: 'info'
+                            });
+                        }}
+                    >
+                        Run Diagnostics
+                    </Button>
+                </Grid>
+            </Grid>
+
+            {loading ? (
+                <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+                    <CircularProgress />
+                </Box>
+            ) : error ? (
+                <Paper sx={{ p: 3, textAlign: 'center' }}>
+                    <Typography variant="h6" color="error">
+                        {typeof error === 'object' && error.message ? error.message : error}
+                    </Typography>
+                </Paper>
+            ) : assignments && assignments.length > 0 ? (
+                <Grid container spacing={3}>
+                    {assignments.map((assignment) => (
+                        <Grid item xs={12} sm={6} md={4} key={assignment._id}>
+                            <Card 
+                                elevation={3}
+                                sx={{ 
+                                    height: '100%',
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    transition: 'transform 0.2s',
+                                    cursor: 'pointer',
+                                    '&:hover': {
+                                        transform: 'translateY(-4px)',
+                                        boxShadow: '0 8px 16px rgba(0,0,0,0.1)'
+                                    }
+                                }}
+                                onClick={() => navigate(`/Admin/assignments/${assignment._id}`)}
+                            >
+                                <Box 
+                                    sx={{ 
+                                        p: 2, 
+                                        display: 'flex', 
+                                        justifyContent: 'space-between',
+                                        alignItems: 'center',
+                                        borderBottom: '1px solid rgba(0, 0, 0, 0.12)'
+                                    }}
+                                >
+                                    <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+                                        {assignment.title}
+                                    </Typography>
+                                    <Tooltip title="Delete Assignment">
+                                        <IconButton 
+                                            color="error" 
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleDeleteAssignment(assignment._id);
+                                            }}
+                                        >
+                                            <Delete />
+                                        </IconButton>
+                                    </Tooltip>
+                                </Box>
+                                <CardContent sx={{ flexGrow: 1 }}>
+                                    <Typography variant="body2" color="text.secondary" paragraph>
+                                        {assignment.description.length > 150
+                                            ? `${assignment.description.substring(0, 150)}...`
+                                            : assignment.description}
+                                    </Typography>
+                                    
+                                    <Grid container spacing={1} sx={{ mt: 2 }}>
+                                        <Grid item xs={12}>
+                                            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                                <School fontSize="small" sx={{ mr: 1, color: 'primary.main' }} />
+                                                <Typography variant="body2">
+                                                    {assignment?.sclassName?.sclassName || 'No class assigned'}
+                                                </Typography>
+                                            </Box>
+                                        </Grid>
+                                        <Grid item xs={12}>
+                                            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                                <Subject fontSize="small" sx={{ mr: 1, color: 'primary.main' }} />
+                                                <Typography variant="body2">
+                                                    {assignment?.subject?.subName || 'No subject assigned'}
+                                                </Typography>
+                                            </Box>
+                                        </Grid>
+                                        <Grid item xs={12}>
+                                            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                                <DateRange fontSize="small" sx={{ mr: 1, color: 'primary.main' }} />
+                                                <Typography variant="body2">
+                                                    Due: {formatDate(assignment.dueDate)}
+                                                </Typography>
+                                            </Box>
+                                        </Grid>
+                                    </Grid>
+                                </CardContent>
+                                <Divider />
+                                <Box sx={{ p: 1.5, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <Chip 
+                                        label={`Max Marks: ${assignment.maxMarks}`} 
+                                        size="small" 
+                                        sx={{ bgcolor: 'rgba(0, 0, 0, 0.08)' }} 
+                                    />
+                                    <Chip 
+                                        label={new Date(assignment.dueDate) < new Date() ? "Past Due" : "Active"} 
+                                        size="small" 
+                                        sx={{ 
+                                            bgcolor: getStatusColor(assignment.dueDate),
+                                            color: 'white'
+                                        }} 
+                                    />
+                                </Box>
+                            </Card>
+                        </Grid>
+                    ))}
+                </Grid>
+            ) : (
+                <Paper sx={{ p: 3, textAlign: 'center' }}>
+                    <Typography variant="h6">No Assignments Found</Typography>
+                    <Typography variant="body1" color="textSecondary" sx={{ mt: 1 }}>
+                        There are no assignments created yet. Create your first assignment using the button above.
+                    </Typography>
+                </Paper>
+            )}
+
+            <Popup
+                title="Create New Assignment"
+                openPopup={openPopup}
+                setOpenPopup={setOpenPopup}
+            >
+                <form onSubmit={handleSubmit}>
+                    <Grid container spacing={2}>
+                        <Grid item xs={12}>
+                            <TextField
+                                name="title"
+                                label="Assignment Title"
+                                value={formData.title}
+                                onChange={handleFormChange}
+                                fullWidth
+                                required
+                            />
+                        </Grid>
+                        <Grid item xs={12}>
+                            <TextField
+                                name="description"
+                                label="Assignment Description"
+                                value={formData.description}
+                                onChange={handleFormChange}
+                                fullWidth
+                                multiline
+                                rows={4}
+                                required
+                            />
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                            <FormControl fullWidth required>
+                                <InputLabel>Class</InputLabel>
+                                <Select
+                                    name="sclassName"
+                                    value={formData.sclassName || ''}
+                                    onChange={handleFormChange}
+                                >
+                                    {Array.isArray(sclasses) && sclasses.length > 0 ? (
+                                        sclasses.map((sclass) => (
+                                            <MenuItem key={sclass._id} value={sclass._id}>
+                                                {sclass.sclassName}
+                                            </MenuItem>
+                                        ))
+                                    ) : (
+                                        <MenuItem disabled>No classes available</MenuItem>
+                                    )}
+                                </Select>
+                            </FormControl>
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                            <FormControl fullWidth required>
+                                <InputLabel>Subject</InputLabel>
+                                <Select
+                                    name="subject"
+                                    value={formData.subject || ''}
+                                    onChange={handleFormChange}
+                                >
+                                    {Array.isArray(subjects) && subjects.length > 0 ? (
+                                        subjects.map((subject) => (
+                                            <MenuItem key={subject._id} value={subject._id}>
+                                                {subject.subName}
+                                            </MenuItem>
+                                        ))
+                                    ) : (
+                                        <MenuItem disabled>No subjects available</MenuItem>
+                                    )}
+                                </Select>
+                            </FormControl>
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                            <TextField
+                                name="dueDate"
+                                label="Due Date"
+                                type="date"
+                                value={formData.dueDate}
+                                onChange={handleFormChange}
+                                fullWidth
+                                required
+                                InputLabelProps={{
+                                    shrink: true,
+                                }}
+                            />
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                            <TextField
+                                name="maxMarks"
+                                label="Maximum Marks"
+                                type="number"
+                                value={formData.maxMarks}
+                                onChange={handleFormChange}
+                                fullWidth
+                                required
+                                InputProps={{
+                                    inputProps: { min: 1 }
+                                }}
+                            />
+                        </Grid>
+                        <Grid item xs={12}>
+                            <Button
+                                type="submit"
+                                variant="contained"
+                                color="primary"
+                                fullWidth
+                            >
+                                Create Assignment
+                            </Button>
+                        </Grid>
+                    </Grid>
+                </form>
+            </Popup>
+
+            <Dialog
+                open={confirmDialog.isOpen}
+                onClose={() => setConfirmDialog({ ...confirmDialog, isOpen: false })}
+            >
+                <DialogTitle>{confirmDialog.title}</DialogTitle>
+                <DialogContent>
+                    <DialogContentText>{confirmDialog.subtitle}</DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button
+                        onClick={() => setConfirmDialog({ ...confirmDialog, isOpen: false })}
+                        color="primary"
+                    >
+                        Cancel
+                    </Button>
+                    <Button onClick={confirmDialog.onConfirm} color="error">
+                        Delete
+                    </Button>
+                </DialogActions>
+            </Dialog>
+            
+            {/* Notification Snackbar */}
+            <Snackbar 
+                open={notification.show} 
+                autoHideDuration={3000} 
+                onClose={() => setNotification({...notification, show: false})}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+            >
+                <Alert 
+                    onClose={() => setNotification({...notification, show: false})} 
+                    severity={notification.type} 
+                    sx={{ width: '100%' }}
+                >
+                    {notification.message}
+                </Alert>
+            </Snackbar>
+        </Box>
+    );
+};
+
+export default AdminAssignments;

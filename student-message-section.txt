@@ -1,0 +1,28 @@
+                    </Grid>
+
+                    {/* Quick Actions Section */}
+                    <Grid item xs={12}>
+                        <QuickActions role="student" />
+                    </Grid>
+
+                    {/* Messaging Center */}
+                    <Grid item xs={12}>
+                        <Paper sx={{ 
+                            p: 2, 
+                            display: 'flex', 
+                            flexDirection: 'column', 
+                            borderRadius: '10px',
+                            boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+                            height: '600px',
+                            mb: 3
+                        }}>
+                            <Typography variant="h6" component="h2" sx={{ mb: 2 }}>
+                                School Communications
+                            </Typography>
+                            <Box sx={{ flexGrow: 1, overflow: 'hidden' }}>
+                                <MessageChat role="student" />
+                            </Box>
+                        </Paper>
+                    </Grid>
+
+                    {/* Class Performance Chart */}
