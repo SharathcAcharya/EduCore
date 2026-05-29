@@ -28,13 +28,34 @@ import { formatDistanceToNow } from 'date-fns';
 
 // Styled components
 const ActivityPaper = styled(Paper)(({ theme }) => ({
-  padding: theme.spacing(2),
+  padding: theme.spacing(3),
   height: '100%',
   display: 'flex',
   flexDirection: 'column',
-  borderRadius: '10px',
-  boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
-  overflow: 'hidden'
+  borderRadius: '24px',
+  backgroundColor: theme.palette.mode === 'light' ? '#ffffff' : '#1e293b',
+  border: `1px solid ${theme.palette.mode === 'light' ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.05)'}`,
+  boxShadow: theme.palette.mode === 'light' 
+      ? '0 10px 40px -10px rgba(0,0,0,0.08)' 
+      : '0 10px 40px -10px rgba(0,0,0,0.4)',
+  overflow: 'hidden',
+  position: 'relative',
+  transition: 'all 0.3s ease',
+  '&:hover': {
+      transform: 'translateY(-4px)',
+      boxShadow: theme.palette.mode === 'light' 
+          ? '0 14px 45px -10px rgba(0,0,0,0.12)' 
+          : '0 14px 45px -10px rgba(0,0,0,0.5)',
+  },
+  '&::before': {
+      content: '""',
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      width: '100%',
+      height: '4px',
+      background: `linear-gradient(90deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main || '#f72585'})`,
+  }
 }));
 
 const ActivityHeader = styled(Box)(({ theme }) => ({

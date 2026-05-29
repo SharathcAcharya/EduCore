@@ -15,29 +15,49 @@ import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
 
 const StudentSideBar = () => {
     const location = useLocation();
+    const itemSx = (active) => ({
+        borderRadius: 3,
+        mb: 0.5,
+        px: 1.5,
+        py: 1,
+        color: active ? 'primary.main' : 'text.secondary',
+        background: active ? 'linear-gradient(135deg, rgba(76, 201, 240, 0.14), rgba(247,37,133,0.08))' : 'transparent',
+        boxShadow: active ? '0 10px 24px rgba(76, 201, 240, 0.12)' : 'none',
+        '&:hover': {
+            background: 'linear-gradient(135deg, rgba(76, 201, 240, 0.10), rgba(247,37,133,0.05))',
+            transform: 'translateX(4px)',
+        },
+        '& .MuiListItemIcon-root': {
+            minWidth: 38,
+            color: active ? 'primary.main' : 'inherit',
+        },
+    });
+
+    const isActive = (path) => location.pathname === path || location.pathname.startsWith(path);
+
     return (
         <>
             <React.Fragment>
-                <ListItemButton component={Link} to="/">
+                <ListItemButton component={Link} to="/" sx={itemSx(isActive('/Student/dashboard') || location.pathname === '/')}>
                     <ListItemIcon>
-                        <HomeIcon color={location.pathname === ("/" || "/Student/dashboard") ? 'primary' : 'inherit'} />
+                        <HomeIcon color={isActive('/Student/dashboard') || location.pathname === '/' ? 'primary' : 'inherit'} />
                     </ListItemIcon>
                     <ListItemText primary="Home" />
                 </ListItemButton>
-                <ListItemButton component={Link} to="/Student/subjects">
+                <ListItemButton component={Link} to="/Student/subjects" sx={itemSx(isActive('/Student/subjects'))}>
                     <ListItemIcon>
-                        <AssignmentIcon color={location.pathname.startsWith("/Student/subjects") ? 'primary' : 'inherit'} />
+                        <AssignmentIcon color={isActive('/Student/subjects') ? 'primary' : 'inherit'} />
                     </ListItemIcon>
                     <ListItemText primary="Subjects" />
                 </ListItemButton>
-                <ListItemButton component={Link} to="/Student/attendance">
+                <ListItemButton component={Link} to="/Student/attendance" sx={itemSx(isActive('/Student/attendance'))}>
                     <ListItemIcon>
-                        <ClassOutlinedIcon color={location.pathname.startsWith("/Student/attendance") ? 'primary' : 'inherit'} />
+                        <ClassOutlinedIcon color={isActive('/Student/attendance') ? 'primary' : 'inherit'} />
                     </ListItemIcon>
                     <ListItemText primary="Attendance" />
-                </ListItemButton>                <ListItemButton component={Link} to="/Student/complain">
+                </ListItemButton>                <ListItemButton component={Link} to="/Student/complain" sx={itemSx(isActive('/Student/complain'))}>
                     <ListItemIcon>
-                        <AnnouncementOutlinedIcon color={location.pathname.startsWith("/Student/complain") ? 'primary' : 'inherit'} />
+                        <AnnouncementOutlinedIcon color={isActive('/Student/complain') ? 'primary' : 'inherit'} />
                     </ListItemIcon>
                     <ListItemText primary="Complain" />
                 </ListItemButton>
@@ -45,27 +65,27 @@ const StudentSideBar = () => {
                 <ListSubheader component="div" inset>
                     New Features
                 </ListSubheader>
-                <ListItemButton component={Link} to="/Student/events">
+                <ListItemButton component={Link} to="/Student/events" sx={itemSx(isActive('/Student/events'))}>
                     <ListItemIcon>
-                        <CalendarMonthIcon color={location.pathname.startsWith("/Student/events") ? 'primary' : 'inherit'} />
+                        <CalendarMonthIcon color={isActive('/Student/events') ? 'primary' : 'inherit'} />
                     </ListItemIcon>
                     <ListItemText primary="Events Calendar" />
                 </ListItemButton>
-                <ListItemButton component={Link} to="/Student/resources">
+                <ListItemButton component={Link} to="/Student/resources" sx={itemSx(isActive('/Student/resources'))}>
                     <ListItemIcon>
-                        <FolderIcon color={location.pathname.startsWith("/Student/resources") ? 'primary' : 'inherit'} />
+                        <FolderIcon color={isActive('/Student/resources') ? 'primary' : 'inherit'} />
                     </ListItemIcon>
                     <ListItemText primary="Learning Resources" />
                 </ListItemButton>
-                <ListItemButton component={Link} to="/Student/assignments">
+                <ListItemButton component={Link} to="/Student/assignments" sx={itemSx(isActive('/Student/assignments'))}>
                     <ListItemIcon>
-                        <AssignmentTurnedInIcon color={location.pathname.startsWith("/Student/assignments") ? 'primary' : 'inherit'} />
+                        <AssignmentTurnedInIcon color={isActive('/Student/assignments') ? 'primary' : 'inherit'} />
                     </ListItemIcon>
                     <ListItemText primary="Assignments" />
                 </ListItemButton>
-                <ListItemButton component={Link} to="/Student/messages">
+                <ListItemButton component={Link} to="/Student/messages" sx={itemSx(isActive('/Student/messages'))}>
                     <ListItemIcon>
-                        <MessageIcon color={location.pathname.startsWith("/Student/messages") ? 'primary' : 'inherit'} />
+                        <MessageIcon color={isActive('/Student/messages') ? 'primary' : 'inherit'} />
                     </ListItemIcon>
                     <ListItemText primary="Messages" />
                 </ListItemButton>
@@ -75,15 +95,15 @@ const StudentSideBar = () => {
                 <ListSubheader component="div" inset>
                     User
                 </ListSubheader>
-                <ListItemButton component={Link} to="/Student/profile">
+                <ListItemButton component={Link} to="/Student/profile" sx={itemSx(isActive('/Student/profile'))}>
                     <ListItemIcon>
-                        <AccountCircleOutlinedIcon color={location.pathname.startsWith("/Student/profile") ? 'primary' : 'inherit'} />
+                        <AccountCircleOutlinedIcon color={isActive('/Student/profile') ? 'primary' : 'inherit'} />
                     </ListItemIcon>
                     <ListItemText primary="Profile" />
                 </ListItemButton>
-                <ListItemButton component={Link} to="/logout">
+                <ListItemButton component={Link} to="/logout" sx={itemSx(isActive('/logout'))}>
                     <ListItemIcon>
-                        <ExitToAppIcon color={location.pathname.startsWith("/logout") ? 'primary' : 'inherit'} />
+                        <ExitToAppIcon color={isActive('/logout') ? 'primary' : 'inherit'} />
                     </ListItemIcon>
                     <ListItemText primary="Logout" />
                 </ListItemButton>

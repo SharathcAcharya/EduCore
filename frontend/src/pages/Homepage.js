@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Container, Grid, Box, Button } from '@mui/material';
 import styled from 'styled-components';
+import { motion } from 'framer-motion';
 import Students from "../assets/students.svg";
 import edusphere from "../assets/edusphere.png";
 import { LightPurpleButton } from '../components/buttonStyles';
@@ -9,13 +10,19 @@ import { LightPurpleButton } from '../components/buttonStyles';
 const Homepage = () => {
     return (
         <StyledContainer>
+            <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, ease: "easeOut" }}
+                style={{ width: '100%' }}
+            >
             <Grid container spacing={0}>
                 <Grid item xs={12} md={6}>
                     <img src={Students} alt="students" style={{ width: '100%' }} />
                 </Grid>
     
                 <Grid item xs={12} md={6}>
-                    <StyledPaper elevation={3}>
+                    <StyledPaper elevation={3} className="glass">
                         <Grid item xs={12} md={6}>
                     <img src={edusphere} alt="students" style={{ width: '70%' }} />
                 </Grid>
@@ -52,6 +59,7 @@ const Homepage = () => {
                     </StyledPaper>
                 </Grid>
             </Grid>
+            </motion.div>
         </StyledContainer>
     );
 };

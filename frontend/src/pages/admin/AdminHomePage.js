@@ -8,7 +8,8 @@ import { getAllTeachers } from '../../redux/teacherRelated/teacherHandle';
 import { getAllNotices } from '../../redux/noticeRelated/noticeHandle';
 import { getAllEvents } from '../../redux/eventRelated/eventHandle';
 import { getAllAssignments } from '../../redux/assignmentRelated/assignmentHandle';
-import MessageChat from '../../components/messages/MessageChat'; // Import MessageChat
+import MessageChat from '../../components/messages/MessageChat';
+import { motion } from 'framer-motion';
 
 // Import our new dashboard components
 import EnhancedStatsCard from '../../components/dashboard/EnhancedStatsCard';
@@ -228,11 +229,20 @@ const AdminHomePage = () => {
     return (
         <>
             <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
+              <motion.div
+                 initial={{ opacity: 0, scale: 0.95 }}
+                 animate={{ opacity: 1, scale: 1 }}
+                 transition={{ staggerChildren: 0.15, duration: 0.4 }}
+              >
                 <Grid container spacing={3}>
                     {/* Enhanced Stats Cards Row */}
                     <Grid item xs={12} md={3}>
-                        <Fade in={!studentsLoading} timeout={1000}>
-                            <div>
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.1 }}
+                        >
+                            <div className="glass">
                                 <EnhancedStatsCard
                                     title="Total Students"
                                     value={numberOfStudents || 0}
@@ -244,11 +254,15 @@ const AdminHomePage = () => {
                                     duration={2.5}
                                 />
                             </div>
-                        </Fade>
+                        </motion.div>
                     </Grid>
                     <Grid item xs={12} md={3}>
-                        <Fade in={!classesLoading} timeout={1000} style={{ transitionDelay: '150ms' }}>
-                            <div>
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.2 }}
+                        >
+                            <div className="glass">
                                 <EnhancedStatsCard
                                     title="Total Classes"
                                     value={numberOfClasses || 0}
@@ -258,11 +272,15 @@ const AdminHomePage = () => {
                                     duration={3}
                                 />
                             </div>
-                        </Fade>
+                        </motion.div>
                     </Grid>
                     <Grid item xs={12} md={3}>
-                        <Fade in={!teachersLoading} timeout={1000} style={{ transitionDelay: '300ms' }}>
-                            <div>
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.3 }}
+                        >
+                            <div className="glass">
                                 <EnhancedStatsCard
                                     title="Total Teachers"
                                     value={numberOfTeachers || 0}
@@ -272,11 +290,15 @@ const AdminHomePage = () => {
                                     duration={2.5}
                                 />
                             </div>
-                        </Fade>
+                        </motion.div>
                     </Grid>
                     <Grid item xs={12} md={3}>
-                        <Fade in={dataLoaded} timeout={1000} style={{ transitionDelay: '450ms' }}>
-                            <div>
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.4 }}
+                        >
+                            <div className="glass">
                                 <EnhancedStatsCard
                                     title="School Performance"
                                     value={schoolPerformance}
@@ -287,19 +309,21 @@ const AdminHomePage = () => {
                                     duration={2.5}
                                 />
                             </div>
-                        </Fade>
+                        </motion.div>
                     </Grid>                    {/* Quick Actions Section */}
                     <Grid item xs={12}>
-                        <QuickActions role="admin" />
+                        <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.5 }}>
+                            <QuickActions role="admin" />
+                        </motion.div>
                     </Grid>
 
                     {/* Messaging Center */}
                     <Grid item xs={12}>
-                        <Paper sx={{ 
+                        <Paper className="glass" sx={{ 
                             p: 2, 
                             display: 'flex', 
                             flexDirection: 'column', 
-                            borderRadius: '10px',
+                            borderRadius: '24px',
                             boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
                             height: '600px',
                             mb: 3
@@ -368,6 +392,7 @@ const AdminHomePage = () => {
                         </Paper>
                     </Grid>
                 </Grid>
+              </motion.div>
             </Container>
 
             {/* Notification */}

@@ -19,15 +19,11 @@ const StatCard = styled(Paper)(({ theme }) => ({
   display: 'flex',
   flexDirection: 'column',
   height: '100%',
-  borderRadius: '12px',
-  boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
-  transition: 'transform 0.3s ease, box-shadow 0.3s ease',
+  borderRadius: '24px',
+  boxShadow: 'none', // Managed globally by theme.js or .glass
+  backgroundColor: 'transparent', // Make it naturally transparent for .glass inheritance
   position: 'relative',
   overflow: 'hidden',
-  '&:hover': {
-    transform: 'translateY(-5px)',
-    boxShadow: '0 8px 25px rgba(0,0,0,0.15)',
-  }
 }));
 
 const IconContainer = styled(Box, {
