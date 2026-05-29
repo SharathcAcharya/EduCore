@@ -28,7 +28,7 @@ const AdminProfile = () => {
     }
 
     return (
-        <StyledPaper elevation={3}>
+        <StyledPaper elevation={3} className="glass">
             <Typography variant="h4" gutterBottom>
                 Admin Profile
             </Typography>

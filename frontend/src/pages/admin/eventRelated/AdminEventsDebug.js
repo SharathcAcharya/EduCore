@@ -30,6 +30,7 @@ import { getAllEvents, addEvent, updateEventDetails, deleteEvent } from '../../.
 import { getAllSclasses } from '../../../redux/sclassRelated/sclassHandle';
 import Popup from '../../../components/Popup';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { motion } from 'framer-motion';
 
 // Use this for testing only, switch back to original component after debugging
 const theme = createTheme({
@@ -282,6 +283,8 @@ const AdminEventsDebug = () => {
         }
     };
 
+    const MotionTableRow = motion.create(TableRow);
+
     const handleRefresh = () => {
         const schoolId = currentUser?.school || currentUser?._id;
         if (schoolId) {
@@ -323,7 +326,7 @@ const AdminEventsDebug = () => {
                 </Grid>
 
                 {/* Debug Info Panel */}
-                <Paper elevation={3} sx={{ p: 2, mb: 3, maxHeight: '300px', overflow: 'auto' }}>
+                <Paper elevation={3} className="glass" sx={{ p: 2, mb: 3, maxHeight: '300px', overflow: 'auto', borderRadius: '24px' }}>
                     <Typography variant="h6" gutterBottom>Debug Information</Typography>
                     
                     <Typography variant="subtitle1">User Info</Typography>
@@ -358,10 +361,10 @@ const AdminEventsDebug = () => {
                     </Box>
                 </Paper>
 
-                <TableContainer component={Paper} elevation={3}>
+                <TableContainer component={Paper} elevation={3} className="glass" sx={{ borderRadius: '24px', overflow: 'hidden' }}>
                     <Table>
                         <TableHead>
-                            <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
+                            <TableRow sx={{ backgroundColor: 'rgba(67,97,238,0.06)' }}>
                                 <TableCell>ID</TableCell>
                                 <TableCell>Title</TableCell>
                                 <TableCell>Description</TableCell>
@@ -386,8 +389,13 @@ const AdminEventsDebug = () => {
                                     </TableCell>
                                 </TableRow>
                             ) : events && events.length > 0 ? (
-                                events.map((event) => (
-                                    <TableRow key={event._id}>
+                                events.map((event, index) => (
+                                    <MotionTableRow
+                                        key={event._id}
+                                        initial={{ opacity: 0, y: 12 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ duration: 0.28, delay: index * 0.06 }}
+                                    >
                                         <TableCell>{event._id}</TableCell>
                                         <TableCell>{event.title}</TableCell>
                                         <TableCell>{event.description?.length > 50
@@ -411,7 +419,7 @@ const AdminEventsDebug = () => {
                                                 <Delete />
                                             </IconButton>
                                         </TableCell>
-                                    </TableRow>
+                                    </MotionTableRow>
                                 ))
                             ) : (
                                 <TableRow>

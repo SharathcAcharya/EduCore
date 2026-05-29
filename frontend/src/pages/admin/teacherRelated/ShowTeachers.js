@@ -11,6 +11,7 @@ import { deleteUser } from '../../../redux/userRelated/userHandle';
 import PersonRemoveIcon from '@mui/icons-material/PersonRemove';
 import { StyledTableCell, StyledTableRow } from '../../../components/styles';
 import { BlueButton, GreenButton } from '../../../components/buttonStyles';
+import { motion } from 'framer-motion';
 import PersonAddAlt1Icon from '@mui/icons-material/PersonAddAlt1';
 import SpeedDialTemplate from '../../../components/SpeedDialTemplate';
 import Popup from '../../../components/Popup';
@@ -69,6 +70,8 @@ const ShowTeachers = () => {
         }
     };
 
+    const MotionStyledTableRow = motion.create(StyledTableRow);
+
     const columns = [
         { id: 'name', label: 'Name', minWidth: 170 },
         { id: 'teachSubject', label: 'Subject', minWidth: 100 },
@@ -97,8 +100,8 @@ const ShowTeachers = () => {
     ];
 
     return (
-        <Paper sx={{ width: '100%', overflow: 'hidden' }}>
-            <TableContainer>
+        <Paper sx={{ width: '100%', overflow: 'hidden' }} className="glass">
+            <TableContainer component={Paper} elevation={3} className="glass" sx={{ borderRadius: '24px', overflow: 'hidden' }}>
                 <Table stickyHeader aria-label="sticky table">
                     <TableHead>
                         <StyledTableRow>
@@ -119,9 +122,17 @@ const ShowTeachers = () => {
                     <TableBody>
                         {rows
                             .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                            .map((row) => {
+                            .map((row, idx) => {
                                 return (
-                                    <StyledTableRow hover role="checkbox" tabIndex={-1} key={row.id}>
+                                    <MotionStyledTableRow
+                                        hover
+                                        role="checkbox"
+                                        tabIndex={-1}
+                                        key={row.id}
+                                        initial={{ opacity: 0, y: 8 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ delay: idx * 0.03, duration: 0.28 }}
+                                    >
                                         {columns.map((column) => {
                                             const value = row[column.id];
                                             if (column.id === 'teachSubject') {
@@ -155,7 +166,7 @@ const ShowTeachers = () => {
                                                 View
                                             </BlueButton>
                                         </StyledTableCell>
-                                    </StyledTableRow>
+                                    </MotionStyledTableRow>
                                 );
                             })}
                     </TableBody>

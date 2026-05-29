@@ -7,12 +7,10 @@ import {
     Paper,
     Card,
     CardContent,
-    Divider,
     Tab,
     Tabs,
     CircularProgress,
     useTheme,
-    Button,
     FormControl,
     InputLabel,
     Select,
@@ -23,8 +21,6 @@ import {
     Bar,
     PieChart,
     Pie,
-    LineChart,
-    Line,
     XAxis,
     YAxis,
     CartesianGrid,
@@ -34,24 +30,12 @@ import {
     Cell
 } from 'recharts';
 import { 
-    School,
     Group,
-    Person,
     MenuBook,
     Assignment,
     BarChart as BarChartIcon,
-    CalendarMonth,
-    CheckCircle,
-    AccessTime
+    CheckCircle
 } from '@mui/icons-material';
-import CustomBarChart from '../../components/CustomBarChart';
-import CustomPieChart from '../../components/CustomPieChart';
-
-// Data transformation utilities
-const calculateAttendancePercentage = (present, total) => {
-    if (!total) return 0;
-    return Math.round((present / total) * 100);
-};
 
 // Custom component for analytics cards
 const StatCard = ({ icon, title, value, subtext, color }) => {
@@ -269,7 +253,7 @@ const TeacherAnalytics = () => {
             </Grid>
 
             {/* Tab Navigation */}
-            <Paper sx={{ mb: 4 }}>
+            <Paper className="glass" sx={{ mb: 4, borderRadius: '24px' }}>
                 <Tabs 
                     value={tabValue} 
                     onChange={handleTabChange} 
@@ -286,7 +270,7 @@ const TeacherAnalytics = () => {
                 <TabPanel value={tabValue} index={0}>
                     <Grid container spacing={3}>
                         <Grid item xs={12} md={6}>
-                            <Paper elevation={3} sx={{ p: 2, height: '100%' }}>
+                            <Paper elevation={3} className="glass" sx={{ p: 2, height: '100%', borderRadius: '24px' }}>
                                 <Typography variant="h6" gutterBottom>
                                     Overall Class Attendance
                                 </Typography>
@@ -321,7 +305,7 @@ const TeacherAnalytics = () => {
                             </Paper>
                         </Grid>
                         <Grid item xs={12} md={6}>
-                            <Paper elevation={3} sx={{ p: 2, height: '100%' }}>
+                            <Paper elevation={3} className="glass" sx={{ p: 2, height: '100%', borderRadius: '24px' }}>
                                 <Typography variant="h6" gutterBottom>
                                     Subject-wise Attendance
                                 </Typography>
@@ -345,7 +329,7 @@ const TeacherAnalytics = () => {
                             </Paper>
                         </Grid>
                         <Grid item xs={12}>
-                            <Paper elevation={3} sx={{ p: 2 }}>
+                            <Paper elevation={3} className="glass" sx={{ p: 2, borderRadius: '24px' }}>
                                 <Typography variant="h6" gutterBottom>
                                     Student-wise Attendance
                                 </Typography>
@@ -372,7 +356,7 @@ const TeacherAnalytics = () => {
                 <TabPanel value={tabValue} index={1}>
                     <Grid container spacing={3}>
                         <Grid item xs={12} md={6}>
-                            <Paper elevation={3} sx={{ p: 2, height: '100%' }}>
+                            <Paper elevation={3} className="glass" sx={{ p: 2, height: '100%', borderRadius: '24px' }}>
                                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
                                     <Typography variant="h6">
                                         Assessment Results
@@ -413,7 +397,7 @@ const TeacherAnalytics = () => {
                             </Paper>
                         </Grid>
                         <Grid item xs={12} md={6}>
-                            <Paper elevation={3} sx={{ p: 2, height: '100%' }}>
+                            <Paper elevation={3} className="glass" sx={{ p: 2, height: '100%', borderRadius: '24px' }}>
                                 <Typography variant="h6" gutterBottom>
                                     Student Gender Distribution
                                 </Typography>
@@ -458,7 +442,7 @@ const TeacherAnalytics = () => {
                             </Paper>
                         </Grid>
                         <Grid item xs={12}>
-                            <Paper elevation={3} sx={{ p: 2 }}>
+                            <Paper elevation={3} className="glass" sx={{ p: 2, borderRadius: '24px' }}>
                                 <Typography variant="h6" gutterBottom>
                                     Student Subject Performance
                                 </Typography>
@@ -488,7 +472,7 @@ const TeacherAnalytics = () => {
                 <TabPanel value={tabValue} index={2}>
                     <Grid container spacing={3}>
                         <Grid item xs={12} md={6}>
-                            <Paper elevation={3} sx={{ p: 2, height: '100%' }}>
+                            <Paper elevation={3} className="glass" sx={{ p: 2, height: '100%', borderRadius: '24px' }}>
                                 <Typography variant="h6" gutterBottom>
                                     Assignment Completion Status
                                 </Typography>
@@ -543,7 +527,7 @@ const TeacherAnalytics = () => {
                             </Paper>
                         </Grid>
                         <Grid item xs={12} md={6}>
-                            <Paper elevation={3} sx={{ p: 2, height: '100%' }}>
+                            <Paper elevation={3} className="glass" sx={{ p: 2, height: '100%', borderRadius: '24px' }}>
                                 <Typography variant="h6" gutterBottom>
                                     Assignment Submission Timeliness
                                 </Typography>

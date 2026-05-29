@@ -27,8 +27,13 @@ const ChartPaper = styled(Paper)(({ theme }) => ({
   height: '100%',
   display: 'flex',
   flexDirection: 'column',
-  borderRadius: '10px',
-  boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+  borderRadius: '24px',
+  boxShadow: theme.palette.mode === 'light' 
+     ? '0 10px 40px -10px rgba(0,0,0,0.06)' 
+     : '0 10px 40px -10px rgba(0,0,0,0.5)',
+  border: `1px solid ${theme.palette.mode === 'light' ? 'rgba(255,255,255,0.8)' : 'rgba(255,255,255,0.08)'}`,
+  backdropFilter: 'blur(10px)',
+  backgroundColor: theme.palette.mode === 'light' ? 'rgba(255, 255, 255, 0.85)' : 'rgba(30, 41, 59, 0.7)',
   overflow: 'hidden'
 }));
 
@@ -39,11 +44,12 @@ const ChartHeader = styled(Box)(({ theme }) => ({
 }));
 
 const CustomTooltip = styled('div')(({ theme }) => ({
-  backgroundColor: theme.palette.background.paper,
+  backgroundColor: theme.palette.mode === 'light' ? 'rgba(255,255,255,0.9)' : 'rgba(15, 23, 42, 0.9)',
+  backdropFilter: 'blur(12px)',
   border: `1px solid ${theme.palette.divider}`,
   padding: theme.spacing(1.5),
-  borderRadius: 4,
-  boxShadow: theme.shadows[3],
+  borderRadius: 12,
+  boxShadow: theme.shadows[4],
   '& .tooltip-label': {
     fontWeight: 'bold',
     marginBottom: theme.spacing(0.5),
@@ -159,51 +165,61 @@ const PerformanceChart = ({
               bottom: 5,
             }}
           >
-            <CartesianGrid strokeDasharray="3 3" vertical={false} />
+            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={theme.palette.mode === 'light' ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.05)'} />
             <XAxis 
               dataKey="name" 
               axisLine={false}
               tickLine={false}
-              tick={{ fill: theme.palette.text.secondary, fontSize: 12 }}
+              tick={{ fill: theme.palette.text.secondary, fontSize: 12, fontFamily: 'Outfit' }}
+              dy={10}
             />
             <YAxis 
               axisLine={false}
               tickLine={false}
-              tick={{ fill: theme.palette.text.secondary, fontSize: 12 }}
+              tick={{ fill: theme.palette.text.secondary, fontSize: 12, fontFamily: 'Outfit' }}
               domain={[0, 100]}
+              dx={-10}
             />
-            <Tooltip content={<PerformanceTooltip />} />
+            <Tooltip content={<PerformanceTooltip />} cursor={{fill: theme.palette.mode === 'light' ? 'rgba(0,0,0,0.02)' : 'rgba(255,255,255,0.02)'}} />
             <Legend 
               wrapperStyle={{ 
-                paddingTop: 10,
-                fontSize: 12
+                paddingTop: 20,
+                fontSize: 14,
+                fontFamily: 'Outfit'
               }}
+              iconType="circle"
             />
             {showAttendance && (
               <Bar 
                 dataKey="attendance" 
                 name="Attendance" 
-                fill={theme.palette.primary.main} 
-                radius={[4, 4, 0, 0]} 
-                barSize={20} 
+                fill="#4361ee" 
+                radius={[6, 6, 0, 0]} 
+                barSize={16} 
+                animationDuration={1500}
+                animationEasing="ease-out"
               />
             )}
             {showPerformance && (
               <Bar 
                 dataKey="performance" 
                 name="Performance" 
-                fill={theme.palette.secondary.main} 
-                radius={[4, 4, 0, 0]} 
-                barSize={20} 
+                fill="#f72585" 
+                radius={[6, 6, 0, 0]} 
+                barSize={16} 
+                animationDuration={1500}
+                animationEasing="ease-out"
               />
             )}
             {showAssignments && (
               <Bar 
                 dataKey="assignments" 
                 name="Assignments" 
-                fill={theme.palette.success.main} 
-                radius={[4, 4, 0, 0]} 
-                barSize={20} 
+                fill="#4cc9f0" 
+                radius={[6, 6, 0, 0]} 
+                barSize={16} 
+                animationDuration={1500}
+                animationEasing="ease-out"
               />
             )}
           </BarChart>

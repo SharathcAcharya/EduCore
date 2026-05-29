@@ -9,6 +9,7 @@ import {
 import { AccountCircle, School, Group } from '@mui/icons-material';
 import styled from 'styled-components';
 import { useSelector } from 'react-redux';
+import { motion } from 'framer-motion';
 import Popup from '../components/Popup';
 
 const ChooseUser = ({ visitor }) => {
@@ -66,47 +67,70 @@ const ChooseUser = ({ visitor }) => {
     <>
       <StyledContainer>
         <Container>
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ staggerChildren: 0.15, duration: 0.5 }}
+          >
           <Grid container spacing={2} justifyContent="center">
             <Grid item xs={12} sm={6} md={4}>
-              <div onClick={() => navigateHandler("Admin")}>
-                <StyledPaper elevation={3}>
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                whileHover={{ scale: 1.05 }}
+                onClick={() => navigateHandler("Admin")}
+              >
+                <StyledPaper elevation={3} className="glass">
                   <Box mb={2}>
-                    <AccountCircle fontSize="large" />
+                    <AccountCircle fontSize="large" color="primary" />
                   </Box>
                   <StyledTypography>
                     Admin
                   </StyledTypography>
                   Login as an administrator to access the dashboard to manage app data.
                 </StyledPaper>
-              </div>
+              </motion.div>
             </Grid>
             <Grid item xs={12} sm={6} md={4}>
-              <StyledPaper elevation={3}>
-                <div onClick={() => navigateHandler("Student")}>
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+                whileHover={{ scale: 1.05 }}
+                onClick={() => navigateHandler("Student")}
+              >
+              <StyledPaper elevation={3} className="glass">
                   <Box mb={2}>
-                    <School fontSize="large" />
+                    <School fontSize="large" color="secondary" />
                   </Box>
                   <StyledTypography>
                     Student
                   </StyledTypography>
                   Login as a student to explore course materials and assignments.
-                </div>
               </StyledPaper>
+              </motion.div>
             </Grid>
             <Grid item xs={12} sm={6} md={4}>
-              <StyledPaper elevation={3}>
-                <div onClick={() => navigateHandler("Teacher")}>
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                whileHover={{ scale: 1.05 }}
+                onClick={() => navigateHandler("Teacher")}
+              >
+              <StyledPaper elevation={3} className="glass">
                   <Box mb={2}>
-                    <Group fontSize="large" />
+                    <Group fontSize="large" sx={{ color: '#00c853' }} />
                   </Box>
                   <StyledTypography>
                     Teacher
                   </StyledTypography>
                   Login as a teacher to create courses, assignments, and track student progress.
-                </div>
               </StyledPaper>
+              </motion.div>
             </Grid>
           </Grid>
+          </motion.div>
         </Container>
       </StyledContainer>
       <Popup message={message} setShowPopup={setShowPopup} showPopup={showPopup} />

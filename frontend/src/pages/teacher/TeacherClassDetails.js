@@ -150,9 +150,11 @@ const TeacherClassDetails = () => {
                 <div>Loading...</div>
             ) : (
                 <>
-                    <Typography variant="h4" align="center" gutterBottom>
-                        Class Details
-                    </Typography>
+                    <Paper className="glass" sx={{ p: 3, mb: 3, borderRadius: '24px' }}>
+                        <Typography variant="h4" align="center" gutterBottom>
+                            Class Details
+                        </Typography>
+                    </Paper>
                     {getresponse ? (
                         <>
                             <Box sx={{ display: 'flex', justifyContent: 'flex-end', marginTop: '16px' }}>
@@ -160,7 +162,7 @@ const TeacherClassDetails = () => {
                             </Box>
                         </>
                     ) : (
-                        <Paper sx={{ width: '100%', overflow: 'hidden' }}>
+                        <Paper className="glass" sx={{ width: '100%', overflow: 'hidden', borderRadius: '24px' }}>
                             <Typography variant="h5" gutterBottom>
                                 Students List:
                             </Typography>
