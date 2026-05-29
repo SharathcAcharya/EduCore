@@ -30,6 +30,7 @@ import {
     InputAdornment,
     TextField,
 } from '@mui/material';
+import { motion } from 'framer-motion';
 import { Add, Delete, Edit, CalendarMonth, Refresh, Search, Clear } from '@mui/icons-material';
 import { getAllEvents, deleteEvent } from '../../../redux/eventRelated/eventHandle';
 import { getAllSclasses } from '../../../redux/sclassRelated/sclassHandle';
@@ -303,7 +304,7 @@ const AdminEvents = () => {
                     </Grid>
                 </Grid>
 
-                <Paper elevation={3} sx={{ p: 2, mb: 3 }}>
+                    <Paper elevation={3} sx={{ p: 2, mb: 3 }} className="glass">
                     <Grid container spacing={2} alignItems="center">
                         <Grid item xs={12} md={6}>
                             <Typography variant="subtitle1" gutterBottom>
@@ -389,7 +390,7 @@ const AdminEvents = () => {
                     </Grid>
 
                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 2 }}>
-                        <TableContainer component={Paper}>
+                        <TableContainer component={Paper} className="glass" sx={{ borderRadius: '16px', overflow: 'hidden' }}>
                             <Table>
                                 <TableHead>
                                     <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
@@ -448,46 +449,54 @@ const AdminEvents = () => {
                                             </TableCell>
                                         </TableRow>
                                     ) : filteredEvents && filteredEvents.length > 0 ? (
-                                        filteredEvents
-                                            .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                                            .map((event) => (
-                                            <TableRow key={event._id}>
-                                                <TableCell>{event.title}</TableCell>
-                                                <TableCell>{event.description && event.description.length > 50
-                                                    ? `${event.description.substring(0, 50)}...`
-                                                    : event.description}</TableCell>
-                                                <TableCell>{formatDate(event.startDate)}</TableCell>
-                                                <TableCell>{formatDate(event.endDate)}</TableCell>
-                                                <TableCell>
-                                                    <Chip 
-                                                        label={event.eventType} 
-                                                        sx={{ 
-                                                            backgroundColor: getEventTypeColor(event.eventType),
-                                                            color: 'white' 
-                                                        }}
-                                                    />
-                                                </TableCell>
-                                                <TableCell>{event.sclassName?.sclassName || 'All Classes'}</TableCell>
-                                                <TableCell>
-                                                    <Tooltip title="Edit Event">
-                                                        <IconButton
-                                                            color="primary"
-                                                            onClick={() => handleEditEvent(event._id, events)}
-                                                        >
-                                                            <Edit />
-                                                        </IconButton>
-                                                    </Tooltip>
-                                                    <Tooltip title="Delete Event">
-                                                        <IconButton
-                                                            color="error"
-                                                            onClick={() => handleDeleteEvent(event._id)}
-                                                        >
-                                                            <Delete />
-                                                        </IconButton>
-                                                    </Tooltip>
-                                                </TableCell>
-                                            </TableRow>
-                                        ))
+                                        (() => {
+                                            const MotionRow = motion.create(TableRow);
+                                            return filteredEvents
+                                                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                                                .map((event, idx) => (
+                                                <MotionRow
+                                                    key={event._id}
+                                                    initial={{ opacity: 0, y: 8 }}
+                                                    animate={{ opacity: 1, y: 0 }}
+                                                    transition={{ duration: 0.35, delay: idx * 0.035 }}
+                                                >
+                                                    <TableCell>{event.title}</TableCell>
+                                                    <TableCell>{event.description && event.description.length > 50
+                                                        ? `${event.description.substring(0, 50)}...`
+                                                        : event.description}</TableCell>
+                                                    <TableCell>{formatDate(event.startDate)}</TableCell>
+                                                    <TableCell>{formatDate(event.endDate)}</TableCell>
+                                                    <TableCell>
+                                                        <Chip 
+                                                            label={event.eventType} 
+                                                            sx={{ 
+                                                                backgroundColor: getEventTypeColor(event.eventType),
+                                                                color: 'white' 
+                                                            }}
+                                                        />
+                                                    </TableCell>
+                                                    <TableCell>{event.sclassName?.sclassName || 'All Classes'}</TableCell>
+                                                    <TableCell>
+                                                        <Tooltip title="Edit Event">
+                                                            <IconButton
+                                                                color="primary"
+                                                                onClick={() => handleEditEvent(event._id, events)}
+                                                            >
+                                                                <Edit />
+                                                            </IconButton>
+                                                        </Tooltip>
+                                                        <Tooltip title="Delete Event">
+                                                            <IconButton
+                                                                color="error"
+                                                                onClick={() => handleDeleteEvent(event._id)}
+                                                            >
+                                                                <Delete />
+                                                            </IconButton>
+                                                        </Tooltip>
+                                                    </TableCell>
+                                                </MotionRow>
+                                            ))
+                                        })()
                                     ) : (
                                         <TableRow>
                                             <TableCell colSpan={7} align="center">

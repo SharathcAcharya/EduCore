@@ -30,6 +30,7 @@ import {
     TablePagination,
     InputAdornment,
 } from '@mui/material';
+import { motion } from 'framer-motion';
 import { Add, Delete, Edit, CalendarMonth, Refresh, Search, FilterList, Clear } from '@mui/icons-material';
 import { getAllEvents, addEvent, updateEventDetails, deleteEvent } from '../../../redux/eventRelated/eventHandle';
 import { getAllSclasses } from '../../../redux/sclassRelated/sclassHandle';
@@ -77,6 +78,7 @@ const AdminEventsFixed = () => {
     // Pagination
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
+    const MotionTableRow = motion.create(TableRow);
 
     const [formData, setFormData] = useState({
         title: '',
@@ -393,7 +395,7 @@ const AdminEventsFixed = () => {
                 </Grid>
 
                 {/* Filtering UI */}
-                <Paper elevation={3} sx={{ p: 2, mb: 3 }}>
+                <Paper elevation={3} sx={{ p: 2, mb: 3 }} className="glass">
                     <Grid container spacing={2} alignItems="center">
                         <Grid item xs={12} md={6}>
                             <Typography variant="subtitle1" gutterBottom>
@@ -473,7 +475,7 @@ const AdminEventsFixed = () => {
                     </Grid>
                 </Paper>
 
-                <TableContainer component={Paper} elevation={3}>
+                <TableContainer component={Paper} elevation={3} className="glass" sx={{ borderRadius: '16px', overflow: 'hidden' }}>
                     <Table>
                         <TableHead>
                             <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
@@ -534,8 +536,8 @@ const AdminEventsFixed = () => {
                             ) : filteredEvents && filteredEvents.length > 0 ? (
                                 filteredEvents
                                     .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                                    .map((event) => (
-                                    <TableRow key={event._id}>
+                                    .map((event, idx) => (
+                                    <MotionTableRow key={event._id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, delay: idx * 0.035 }}>
                                         <TableCell>{event.title}</TableCell>
                                         <TableCell>{event.description && event.description.length > 50
                                             ? `${event.description.substring(0, 50)}...`
@@ -570,7 +572,7 @@ const AdminEventsFixed = () => {
                                                 </IconButton>
                                             </Tooltip>
                                         </TableCell>
-                                    </TableRow>
+                                    </MotionTableRow>
                                 ))
                             ) : (
                                 <TableRow>

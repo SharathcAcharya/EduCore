@@ -8,6 +8,7 @@ import { calculateOverallAttendancePercentage, calculateSubjectAttendancePercent
 import CustomPieChart from '../../components/CustomPieChart'
 import { PurpleButton } from '../../components/buttonStyles';
 import { StyledTableCell, StyledTableRow } from '../../components/styles';
+import { motion } from 'framer-motion';
 
 const TeacherViewStudent = () => {
 
@@ -34,6 +35,8 @@ const TeacherViewStudent = () => {
     const [subjectAttendance, setSubjectAttendance] = useState([]);
 
     const [openStates, setOpenStates] = useState({});
+
+    const MotionStyledTableRow = motion.create(StyledTableRow);
 
     const handleOpen = (subId) => {
         setOpenStates((prevState) => ({
@@ -98,7 +101,7 @@ const TeacherViewStudent = () => {
                                             </TableHead>
 
                                             <TableBody>
-                                                <StyledTableRow>
+                                                <MotionStyledTableRow initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, delay: index * 0.04 }}>
                                                     <StyledTableCell>{subName}</StyledTableCell>
                                                     <StyledTableCell>{present}</StyledTableCell>
                                                     <StyledTableCell>{sessions}</StyledTableCell>
@@ -108,7 +111,7 @@ const TeacherViewStudent = () => {
                                                             {openStates[subId] ? <KeyboardArrowUp /> : <KeyboardArrowDown />}Details
                                                         </Button>
                                                     </StyledTableCell>
-                                                </StyledTableRow>
+                                                </MotionStyledTableRow>
                                                 <StyledTableRow>
                                                     <StyledTableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
                                                         <Collapse in={openStates[subId]} timeout="auto" unmountOnExit>
@@ -124,16 +127,16 @@ const TeacherViewStudent = () => {
                                                                         </StyledTableRow>
                                                                     </TableHead>
                                                                     <TableBody>
-                                                                        {allData.map((data, index) => {
+                                                                        {allData.map((data, aidx) => {
                                                                             const date = new Date(data.date);
                                                                             const dateString = date.toString() !== "Invalid Date" ? date.toISOString().substring(0, 10) : "Invalid Date";
                                                                             return (
-                                                                                <StyledTableRow key={index}>
+                                                                                <MotionStyledTableRow key={aidx} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.28, delay: aidx * 0.02 }}>
                                                                                     <StyledTableCell component="th" scope="row">
                                                                                         {dateString}
                                                                                     </StyledTableCell>
                                                                                     <StyledTableCell align="right">{data.status}</StyledTableCell>
-                                                                                </StyledTableRow>
+                                                                                </MotionStyledTableRow>
                                                                             );
                                                                         })}
                                                                     </TableBody>
@@ -184,10 +187,10 @@ const TeacherViewStudent = () => {
                                                 </StyledTableRow>
                                             </TableHead>
                                             <TableBody>
-                                                <StyledTableRow>
+                                                <MotionStyledTableRow initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.32, delay: sidx * 0.03 }}>
                                                     <StyledTableCell>{result.subName.subName}</StyledTableCell>
                                                     <StyledTableCell>{result.marksObtained}</StyledTableCell>
-                                                </StyledTableRow>
+                                                </MotionStyledTableRow>
                                             </TableBody>
                                         </Table>
                                     )

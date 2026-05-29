@@ -16,6 +16,7 @@ import {
     TextField,
     InputAdornment,
 } from '@mui/material';
+import { motion } from 'framer-motion';
 import { 
     Assignment, 
     Search, 
@@ -131,6 +132,9 @@ const StudentAssignments = () => {
         })
         : [];
 
+    const MotionCard = motion.create(Card);
+    const MotionPaper = motion.create(Paper);
+
     return (
         <Box sx={{ p: 2 }}>
             <Typography variant="h5" gutterBottom sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
@@ -193,16 +197,16 @@ const StudentAssignments = () => {
                     <CircularProgress />
                 </Box>
             ) : error ? (
-                <Paper sx={{ p: 3, textAlign: 'center' }}>
+                <MotionPaper sx={{ p: 3, textAlign: 'center' }} className="glass">
                     <Typography variant="h6" color="error">{error}</Typography>
-                </Paper>
+                </MotionPaper>
             ) : filteredAssignments.length > 0 ? (
                 <Grid container spacing={3}>
-                    {filteredAssignments.map((assignment) => {
+                    {filteredAssignments.map((assignment, index) => {
                         const statusInfo = getStatusInfo(assignment);
                         return (
                             <Grid item xs={12} sm={6} md={4} key={assignment._id}>
-                                <Card 
+                                <MotionCard 
                                     elevation={3}
                                     sx={{ 
                                         height: '100%',
@@ -216,6 +220,9 @@ const StudentAssignments = () => {
                                         }
                                     }}
                                     onClick={() => navigate(`/Student/assignments/${assignment._id}`)}
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ duration: 0.3, delay: index * 0.04 }}
                                 >
                                     <Box 
                                         sx={{ 
@@ -282,20 +289,20 @@ const StudentAssignments = () => {
                                             </Typography>
                                         )}
                                     </Box>
-                                </Card>
+                                </MotionCard>
                             </Grid>
                         );
                     })}
                 </Grid>
             ) : (
-                <Paper sx={{ p: 3, textAlign: 'center' }}>
+                <MotionPaper sx={{ p: 3, textAlign: 'center' }} className="glass">
                     <Typography variant="h6">No Assignments Found</Typography>
                     <Typography variant="body1" color="textSecondary" sx={{ mt: 1 }}>
                         {selectedStatus !== 'all' 
                             ? `No ${selectedStatus} assignments found. Try a different filter.` 
                             : "There are no assignments for your class yet."}
                     </Typography>
-                </Paper>
+                </MotionPaper>
             )}
         </Box>
     );

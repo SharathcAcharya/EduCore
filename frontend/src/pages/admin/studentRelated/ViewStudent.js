@@ -13,6 +13,7 @@ import { calculateOverallAttendancePercentage, calculateSubjectAttendancePercent
 import CustomBarChart from '../../../components/CustomBarChart'
 import CustomPieChart from '../../../components/CustomPieChart'
 import { StyledTableCell, StyledTableRow } from '../../../components/styles';
+import { motion } from 'framer-motion';
 
 import InsertChartIcon from '@mui/icons-material/InsertChart';
 import InsertChartOutlinedIcon from '@mui/icons-material/InsertChartOutlined';
@@ -74,6 +75,8 @@ const ViewStudent = () => {
     const handleSectionChange = (event, newSection) => {
         setSelectedSection(newSection);
     };
+
+    const MotionStyledTableRow = motion.create(StyledTableRow);
 
     const fields = password === ""
         ? { name, rollNum }
@@ -162,7 +165,7 @@ const ViewStudent = () => {
                             const subjectAttendancePercentage = calculateSubjectAttendancePercentage(present, sessions);
                             return (
                                 <TableBody key={index}>
-                                    <StyledTableRow>
+                                    <MotionStyledTableRow initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, delay: index * 0.04 }}>
                                         <StyledTableCell>{subName}</StyledTableCell>
                                         <StyledTableCell>{present}</StyledTableCell>
                                         <StyledTableCell>{sessions}</StyledTableCell>
@@ -180,7 +183,7 @@ const ViewStudent = () => {
                                                 Change
                                             </Button>
                                         </StyledTableCell>
-                                    </StyledTableRow>
+                                    </MotionStyledTableRow>
                                     <StyledTableRow>
                                         <StyledTableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
                                             <Collapse in={openStates[subId]} timeout="auto" unmountOnExit>
@@ -196,16 +199,16 @@ const ViewStudent = () => {
                                                             </StyledTableRow>
                                                         </TableHead>
                                                         <TableBody>
-                                                            {allData.map((data, index) => {
+                                                            {allData.map((data, didx) => {
                                                                 const date = new Date(data.date);
                                                                 const dateString = date.toString() !== "Invalid Date" ? date.toISOString().substring(0, 10) : "Invalid Date";
                                                                 return (
-                                                                    <StyledTableRow key={index}>
+                                                                    <MotionStyledTableRow key={didx} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.28, delay: didx * 0.02 }}>
                                                                         <StyledTableCell component="th" scope="row">
                                                                             {dateString}
                                                                         </StyledTableCell>
                                                                         <StyledTableCell align="right">{data.status}</StyledTableCell>
-                                                                    </StyledTableRow>
+                                                                    </MotionStyledTableRow>
                                                                 )
                                                             })}
                                                         </TableBody>
@@ -216,8 +219,7 @@ const ViewStudent = () => {
                                     </StyledTableRow>
                                 </TableBody>
                             )
-                        }
-                        )}
+                        })}
                     </Table>
                     <div>
                         Overall Attendance Percentage: {overallAttendancePercentage.toFixed(2)}%
@@ -244,7 +246,7 @@ const ViewStudent = () => {
                         {selectedSection === 'table' && renderTableSection()}
                         {selectedSection === 'chart' && renderChartSection()}
 
-                        <Paper sx={{ position: 'fixed', bottom: 0, left: 0, right: 0 }} elevation={3}>
+                        <Paper sx={{ position: 'fixed', bottom: 0, left: 0, right: 0 }} elevation={3} className="glass">
                             <BottomNavigation value={selectedSection} onChange={handleSectionChange} showLabels>
                                 <BottomNavigationAction
                                     label="Table"
@@ -315,7 +317,7 @@ const ViewStudent = () => {
                         {selectedSection === 'table' && renderTableSection()}
                         {selectedSection === 'chart' && renderChartSection()}
 
-                        <Paper sx={{ position: 'fixed', bottom: 0, left: 0, right: 0 }} elevation={3}>
+                        <Paper sx={{ position: 'fixed', bottom: 0, left: 0, right: 0 }} elevation={3} className="glass">
                             <BottomNavigation value={selectedSection} onChange={handleSectionChange} showLabels>
                                 <BottomNavigationAction
                                     label="Table"

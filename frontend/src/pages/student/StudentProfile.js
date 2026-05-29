@@ -28,7 +28,7 @@ const StudentProfile = () => {
   return (
     <>
       <Container maxWidth="md">
-        <StyledPaper elevation={3}>
+        <StyledPaper elevation={3} className="glass">
           <Grid container spacing={2}>
             <Grid item xs={12}>
               <Box display="flex" justifyContent="center">

@@ -14,6 +14,7 @@ import {
     Button,
 } from '@mui/material';
 import { CalendarMonth, School, Class, Refresh } from '@mui/icons-material';
+import { motion } from 'framer-motion';
 import { getClassEvents } from '../../redux/eventRelated/eventHandle';
 import { diagnoseSclassEvents } from '../../utils/eventDiagnostics';
 
@@ -85,6 +86,8 @@ const StudentEvents = () => {
     };
 
     const groupedEvents = groupEventsByMonth();
+    const MotionCard = motion.create(Card);
+    const MotionPaper = motion.create(Paper);
 
     return (
         <Box sx={{ p: 2 }}>
@@ -125,12 +128,12 @@ const StudentEvents = () => {
             {loading ? (
                 <Typography>Loading events...</Typography>
             ) : events && events.message ? (
-                <Paper sx={{ p: 3, textAlign: 'center' }}>
+                <MotionPaper sx={{ p: 3, textAlign: 'center' }} className="glass">
                     <Typography variant="h6">{events.message}</Typography>
                     <Typography variant="body1" color="textSecondary" sx={{ mt: 1 }}>
                         No events have been scheduled for your class yet.
                     </Typography>
-                </Paper>
+                </MotionPaper>
             ) : (
                 Object.keys(groupedEvents).length > 0 ? (
                     Object.entries(groupedEvents).map(([monthYear, monthEvents]) => (
@@ -139,9 +142,9 @@ const StudentEvents = () => {
                                 {monthYear}
                             </Typography>
                             <Grid container spacing={2}>
-                                {monthEvents.map((event) => (
+                                {monthEvents.map((event, index) => (
                                     <Grid item xs={12} md={6} key={event._id}>
-                                        <Card 
+                                        <MotionCard 
                                             elevation={3} 
                                             sx={{ 
                                                 height: '100%',
@@ -152,7 +155,10 @@ const StudentEvents = () => {
                                                     boxShadow: '0 8px 16px rgba(0,0,0,0.1)'
                                                 }
                                             }}
-                                        >
+                                            initial={{ opacity: 0, y: 10 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            transition={{ duration: 0.3, delay: index * 0.04 }}
+                                            >
                                             <CardHeader 
                                                 title={event.title}
                                                 subheader={
@@ -200,18 +206,18 @@ const StudentEvents = () => {
                                                     )}
                                                 </Grid>
                                             </CardContent>
-                                        </Card>
+                                        </MotionCard>
                                     </Grid>
                                 ))}
                             </Grid>
                         </Box>
                     ))                ) : (
-                    <Paper sx={{ p: 3, textAlign: 'center' }}>
+                    <MotionPaper sx={{ p: 3, textAlign: 'center' }} className="glass">
                         <Typography variant="h6">No events found</Typography>
                         <Typography variant="body1" color="textSecondary" sx={{ mt: 1 }}>
                             There are no scheduled events for your class at this time.
                         </Typography>
-                    </Paper>
+                    </MotionPaper>
                 )
             )}
         </Box>

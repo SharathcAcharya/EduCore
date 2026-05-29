@@ -131,7 +131,7 @@ const AssignmentSubmission = () => {
 
     if (error) {
         return (
-            <Paper sx={{ p: 3, textAlign: 'center' }}>
+            <Paper sx={{ p: 3, textAlign: 'center' }} className="glass">
                 <Typography variant="h6" color="error">{error}</Typography>
             </Paper>
         );
@@ -139,7 +139,7 @@ const AssignmentSubmission = () => {
 
     if (!assignment) {
         return (
-            <Paper sx={{ p: 3, textAlign: 'center' }}>
+            <Paper sx={{ p: 3, textAlign: 'center' }} className="glass">
                 <Typography variant="h6">Assignment not found</Typography>
             </Paper>
         );
@@ -155,7 +155,7 @@ const AssignmentSubmission = () => {
                 Back to Assignments
             </Button>
 
-            <Paper elevation={3} sx={{ p: 3, mb: 3 }}>
+            <Paper elevation={3} sx={{ p: 3, mb: 3 }} className="glass">
                 <Grid container spacing={2}>
                     <Grid item xs={12} sm={8}>
                         <Typography variant="h4" gutterBottom sx={{ display: 'flex', alignItems: 'center' }}>
@@ -211,7 +211,7 @@ const AssignmentSubmission = () => {
                 </Grid>
             </Paper>
 
-            <Paper elevation={3} sx={{ p: 3 }}>
+            <Paper elevation={3} sx={{ p: 3 }} className="glass">
                 <Typography variant="h5" gutterBottom>
                     {submission ? 'Your Submission' : 'Submit Assignment'}
                 </Typography>
