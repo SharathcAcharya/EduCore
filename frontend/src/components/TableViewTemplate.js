@@ -1,13 +1,16 @@
 import React, { useState } from 'react'
 import { StyledTableCell, StyledTableRow } from './styles';
-import { Table, TableBody, TableContainer, TableHead, TablePagination } from '@mui/material';
+import { Table, TableBody, TableContainer, TableHead, TablePagination, Paper } from '@mui/material';
+import { motion } from 'framer-motion';
+
+const MotionStyledTableRow = motion(StyledTableRow);
 
 const TableViewTemplate = ({ columns, rows }) => {
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(5);
     return (
         <>
-            <TableContainer>
+            <TableContainer component={Paper} elevation={3} className="glass" sx={{ borderRadius: '24px', overflow: 'hidden' }}>
                 <Table stickyHeader aria-label="sticky table">
                     <TableHead>
                         <StyledTableRow>
@@ -25,9 +28,17 @@ const TableViewTemplate = ({ columns, rows }) => {
                     <TableBody>
                         {rows
                             .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                            .map((row) => {
+                            .map((row, idx) => {
                                 return (
-                                    <StyledTableRow hover role="checkbox" tabIndex={-1} key={row.id}>
+                                    <MotionStyledTableRow
+                                        hover
+                                        role="checkbox"
+                                        tabIndex={-1}
+                                        key={row.id}
+                                        initial={{ opacity: 0, y: 8 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ delay: idx * 0.03, duration: 0.28 }}
+                                    >
                                         {columns.map((column, index) => {
                                             const value = row[column.id];
                                             return (
@@ -40,7 +51,7 @@ const TableViewTemplate = ({ columns, rows }) => {
                                                 </StyledTableCell>
                                             );
                                         })}
-                                    </StyledTableRow>
+                                    </MotionStyledTableRow>
                                 );
                             })}
                     </TableBody>

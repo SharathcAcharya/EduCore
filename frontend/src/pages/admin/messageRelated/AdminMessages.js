@@ -503,7 +503,7 @@ const AdminMessages = () => {
 
     return (
         <Box sx={{ flexGrow: 1, p: 2 }}>
-            <Paper elevation={3} sx={{ p: 2 }}>
+            <Paper elevation={3} className="glass" sx={{ p: 2, borderRadius: '24px' }}>
                 <Grid container spacing={2}>
                     {/* Header */}
                     <Grid item xs={12}>

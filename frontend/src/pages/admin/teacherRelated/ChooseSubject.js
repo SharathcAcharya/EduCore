@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 import { Box, Table, TableBody, TableContainer, TableHead, Typography, Paper } from '@mui/material'
+import { motion } from 'framer-motion';
+import { StyledTableCell, StyledTableRow } from '../../../components/styles';
 import { useNavigate, useParams } from 'react-router-dom';
 import { getTeacherFreeClassSubjects } from '../../../redux/sclassRelated/sclassHandle';
 import { updateTeachSubject } from '../../../redux/teacherRelated/teacherHandle';
 import { GreenButton, PurpleButton } from '../../../components/buttonStyles';
-import { StyledTableCell, StyledTableRow } from '../../../components/styles';
 
 const ChooseSubject = ({ situation }) => {
     const params = useParams();
@@ -56,13 +57,15 @@ const ChooseSubject = ({ situation }) => {
         navigate("/Admin/teachers")
     }
 
+    const MotionStyledTableRow = motion(StyledTableRow);
+
     return (
-        <Paper sx={{ width: '100%', overflow: 'hidden' }}>
+        <Paper sx={{ width: '100%', overflow: 'hidden' }} className="glass">
             <Typography variant="h6" gutterBottom component="div">
                 Choose a subject
             </Typography>
             <>
-                <TableContainer>
+                <TableContainer component={Paper} elevation={3} className="glass" sx={{ borderRadius: '24px', overflow: 'hidden' }}>
                     <Table aria-label="sclasses table">
                         <TableHead>
                             <StyledTableRow>
@@ -75,7 +78,12 @@ const ChooseSubject = ({ situation }) => {
                         <TableBody>
                             {Array.isArray(subjectsList) && subjectsList.length > 0 ? (
                                 subjectsList.map((subject, index) => (
-                                    <StyledTableRow key={subject._id}>
+                                    <MotionStyledTableRow
+                                        key={subject._id}
+                                        initial={{ opacity: 0, y: 8 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ delay: index * 0.03, duration: 0.28 }}
+                                    >
                                         <StyledTableCell component="th" scope="row" style={{ color: "white" }}>
                                             {index + 1}
                                         </StyledTableCell>
@@ -97,7 +105,7 @@ const ChooseSubject = ({ situation }) => {
                                                     )}
                                                 </GreenButton>}
                                         </StyledTableCell>
-                                    </StyledTableRow>
+                                    </MotionStyledTableRow>
                                 ))
                             ) : (
                                 <StyledTableRow>
