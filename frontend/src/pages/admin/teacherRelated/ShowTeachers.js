@@ -70,7 +70,7 @@ const ShowTeachers = () => {
         }
     };
 
-    const MotionStyledTableRow = motion(StyledTableRow);
+    const MotionStyledTableRow = motion.create(StyledTableRow);
 
     const columns = [
         { id: 'name', label: 'Name', minWidth: 170 },

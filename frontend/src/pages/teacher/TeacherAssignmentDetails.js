@@ -22,15 +22,10 @@ import {
     DialogContent,
     DialogTitle,
     TextField,
-    FormControl,
-    InputLabel,
-    Select,
-    MenuItem,
 } from '@mui/material';
 import {
     Assignment,
     School,
-    Class,
     Subject,
     DateRange,
     Person,
@@ -43,6 +38,7 @@ import {
     getAssignmentDetail,
     gradeSubmission
 } from '../../redux/assignmentRelated/assignmentHandle';
+import { motion } from 'framer-motion';
 
 const TeacherAssignmentDetails = () => {
     const { id } = useParams();
@@ -85,6 +81,8 @@ const TeacherAssignmentDetails = () => {
                 return '#9e9e9e'; // grey
         }
     };
+
+    const MotionTableRow = motion.create(TableRow);
 
     const handleOpenGradeDialog = (submission) => {
         setSelectedSubmission(submission);
@@ -161,7 +159,7 @@ const TeacherAssignmentDetails = () => {
                 Back to Assignments
             </Button>
 
-            <Paper elevation={3} sx={{ p: 3, mb: 3 }}>
+            <Paper elevation={3} className="glass" sx={{ p: 3, mb: 3, borderRadius: '24px' }}>
                 <Grid container spacing={2}>
                     <Grid item xs={12} sm={8}>
                         <Typography variant="h4" gutterBottom sx={{ display: 'flex', alignItems: 'center' }}>
@@ -224,7 +222,7 @@ const TeacherAssignmentDetails = () => {
                 </Grid>
             </Paper>
 
-            <Paper elevation={3} sx={{ p: 3 }}>
+            <Paper elevation={3} className="glass" sx={{ p: 3, borderRadius: '24px' }}>
                 <Typography variant="h5" gutterBottom>
                     Student Submissions
                 </Typography>
@@ -244,8 +242,13 @@ const TeacherAssignmentDetails = () => {
                                 </TableRow>
                             </TableHead>
                             <TableBody>
-                                {submissions.map((submission) => (
-                                    <TableRow key={submission._id}>
+                                {submissions.map((submission, index) => (
+                                    <MotionTableRow
+                                        key={submission._id}
+                                        initial={{ opacity: 0, y: 12 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ duration: 0.28, delay: index * 0.06 }}
+                                    >
                                         <TableCell>
                                             {submission.student && submission.student.name}
                                         </TableCell>
@@ -292,7 +295,7 @@ const TeacherAssignmentDetails = () => {
                                                 )}
                                             </Box>
                                         </TableCell>
-                                    </TableRow>
+                                    </MotionTableRow>
                                 ))}
                             </TableBody>
                         </Table>

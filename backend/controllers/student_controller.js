@@ -46,11 +46,12 @@ const studentLogIn = async (req, res) => {
 
         // Convert rollNum to number if it's a string
         const rollNumValue = typeof rollNum === 'string' ? parseInt(rollNum, 10) : rollNum;
-        
-        // Find student by roll number and name
+        const normalizedStudentName = typeof studentName === 'string' ? studentName.trim() : studentName;
+
+        // Find student by roll number and a normalized name match
         let student = await Student.findOne({ 
             rollNum: rollNumValue, 
-            name: studentName 
+            name: { $regex: `^${normalizedStudentName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, $options: 'i' } 
         });
         
         if (student) {

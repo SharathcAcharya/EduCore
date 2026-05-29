@@ -57,7 +57,7 @@ const ChooseSubject = ({ situation }) => {
         navigate("/Admin/teachers")
     }
 
-    const MotionStyledTableRow = motion(StyledTableRow);
+    const MotionStyledTableRow = motion.create(StyledTableRow);
 
     return (
         <Paper sx={{ width: '100%', overflow: 'hidden' }} className="glass">

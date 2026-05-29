@@ -283,7 +283,7 @@ const AdminEventsDebug = () => {
         }
     };
 
-    const MotionTableRow = motion(TableRow);
+    const MotionTableRow = motion.create(TableRow);
 
     const handleRefresh = () => {
         const schoolId = currentUser?.school || currentUser?._id;

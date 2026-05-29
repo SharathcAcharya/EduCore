@@ -4,6 +4,7 @@ import { getSubjectList } from '../../redux/sclassRelated/sclassHandle';
 import { BottomNavigation, BottomNavigationAction, Container, Paper, Table, TableBody, TableHead, Typography } from '@mui/material';
 import { getUserDetails } from '../../redux/userRelated/userHandle';
 import CustomBarChart from '../../components/CustomBarChart'
+import { motion } from 'framer-motion';
 
 import InsertChartIcon from '@mui/icons-material/InsertChart';
 import InsertChartOutlinedIcon from '@mui/icons-material/InsertChartOutlined';
@@ -44,6 +45,8 @@ const StudentSubjects = () => {
     };
 
     const renderTableSection = () => {
+        const MotionTableRow = motion.create(StyledTableRow);
+
         return (
             <>
                 <Typography variant="h4" align="center" gutterBottom>
@@ -62,10 +65,16 @@ const StudentSubjects = () => {
                                 return null;
                             }
                             return (
-                                <StyledTableRow key={index}>
+                                <MotionTableRow
+                                    key={index}
+                                    initial={{ opacity: 0, y: 12 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ duration: 0.28, delay: index * 0.06 }}
+                                    hover
+                                >
                                     <StyledTableCell>{result.subName.subName}</StyledTableCell>
                                     <StyledTableCell>{result.marksObtained}</StyledTableCell>
-                                </StyledTableRow>
+                                </MotionTableRow>
                             );
                         })}
                     </TableBody>

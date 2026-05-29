@@ -3,7 +3,7 @@ import { StyledTableCell, StyledTableRow } from './styles';
 import { Table, TableBody, TableContainer, TableHead, TablePagination, Paper } from '@mui/material';
 import { motion } from 'framer-motion';
 
-const MotionStyledTableRow = motion(StyledTableRow);
+const MotionStyledTableRow = motion.create(StyledTableRow);
 
 const TableViewTemplate = ({ columns, rows }) => {
     const [page, setPage] = useState(0);

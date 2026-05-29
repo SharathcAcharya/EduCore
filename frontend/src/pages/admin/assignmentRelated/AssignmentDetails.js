@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import {
@@ -21,7 +21,6 @@ import {
 import {
     Assignment,
     School,
-    Class,
     Subject,
     DateRange,
     Person,
@@ -29,6 +28,7 @@ import {
     Download,
 } from '@mui/icons-material';
 import { getAssignmentDetail } from '../../../redux/assignmentRelated/assignmentHandle';
+import { motion } from 'framer-motion';
 
 const AssignmentDetails = () => {
     const { id } = useParams();
@@ -65,6 +65,8 @@ const AssignmentDetails = () => {
         }
     };
 
+    const MotionTableRow = motion.create(TableRow);
+
     if (loading) {
         return (
             <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
@@ -99,7 +101,7 @@ const AssignmentDetails = () => {
                 Back to Assignments
             </Button>
 
-            <Paper elevation={3} sx={{ p: 3, mb: 3 }}>
+            <Paper elevation={3} className="glass" sx={{ p: 3, mb: 3, borderRadius: '24px' }}>
                 <Grid container spacing={2}>
                     <Grid item xs={12} sm={8}>
                         <Typography variant="h4" gutterBottom sx={{ display: 'flex', alignItems: 'center' }}>
@@ -161,7 +163,7 @@ const AssignmentDetails = () => {
                 </Grid>
             </Paper>
 
-            <Paper elevation={3} sx={{ p: 3 }}>
+            <Paper elevation={3} className="glass" sx={{ p: 3, borderRadius: '24px' }}>
                 <Typography variant="h5" gutterBottom>
                     Student Submissions
                 </Typography>
@@ -181,8 +183,13 @@ const AssignmentDetails = () => {
                                 </TableRow>
                             </TableHead>
                             <TableBody>
-                                {submissions.map((submission) => (
-                                    <TableRow key={submission._id}>
+                                {submissions.map((submission, index) => (
+                                    <MotionTableRow
+                                        key={submission._id}
+                                        initial={{ opacity: 0, y: 12 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ duration: 0.28, delay: index * 0.06 }}
+                                    >
                                         <TableCell>
                                             {submission.student && submission.student.name}
                                         </TableCell>
@@ -217,7 +224,7 @@ const AssignmentDetails = () => {
                                                 </IconButton>
                                             )}
                                         </TableCell>
-                                    </TableRow>
+                                    </MotionTableRow>
                                 ))}
                             </TableBody>
                         </Table>
