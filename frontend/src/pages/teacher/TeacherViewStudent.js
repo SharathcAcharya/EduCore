@@ -187,7 +187,7 @@ const TeacherViewStudent = () => {
                                                 </StyledTableRow>
                                             </TableHead>
                                             <TableBody>
-                                                <MotionStyledTableRow initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.32, delay: sidx * 0.03 }}>
+                                                <MotionStyledTableRow initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.32, delay: index * 0.03 }}>
                                                     <StyledTableCell>{result.subName.subName}</StyledTableCell>
                                                     <StyledTableCell>{result.marksObtained}</StyledTableCell>
                                                 </MotionStyledTableRow>
